@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import com.azure.storage.*;
@@ -20,9 +25,12 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 @RestController
 public class HelloController {
@@ -31,15 +39,74 @@ public class HelloController {
 	   private final Path rootLocation = Paths.get("_Path_To_Save_The_File");
 	
 	// Define the connection-string with your values
-	   public static final String storageConnectionString =
-	       "DefaultEndpointsProtocol=https;AccountName=storageacchv;AccountKey=DkXmV++w0lyLSJBv0nWVRbcAhVWImWz6uIKZ9AKzgPmwOpSYSv3zEnofTuJ+RkT2p6ixRZLbbUUHqv55N6FWlw==;EndpointSuffix=core.windows.net";
+	   public static final String storageConnectionString ="DefaultEndpointsProtocol=https;AccountName=storageaccountnagphv;AccountKey=7H15QHM4WJuMKgVOnJhj0IqO90c3vc03nS6FzePHR5ZXOCKYstp4vBVfkW+n70Dfw6k4UBbcrlD96Fzcde57LA==;EndpointSuffix=core.windows.net";
+	       //"DefaultEndpointsProtocol=https;AccountName=storageacchv;AccountKey=DkXmV++w0lyLSJBv0nWVRbcAhVWImWz6uIKZ9AKzgPmwOpSYSv3zEnofTuJ+RkT2p6ixRZLbbUUHqv55N6FWlw==;EndpointSuffix=core.windows.net";
+	   
+	   public static final String sqlConnectionString="jdbc:sqlserver://sqlserverhv.database.windows.net:1433;database=sqldbhv;user=NagpHimanshi@sqlserverhv;password=Nagp@Himanshi;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;";
 	   
 	@RequestMapping("/")
 	public String index() {
 		return "Greetings from Spring Boot!";
 	}
 	
-	@CrossOrigin(origins = "http://localhost:4200")	
+	//@CrossOrigin(origins = "https://frontendwebapphv.azurewebsites.net/")	
+	@GetMapping("/getItem/{id}")
+	   public ResponseEntity<String> getItemFromId(@PathVariable(value ="id") String id) {
+		String name = null;
+		System.out.println("get item method . id is  "+id);
+		// Declare the JDBC objects.
+		
+		 try {
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+				Connection connection = null;
+				Statement statement = null;
+				ResultSet resultSet = null;
+				
+
+				try {
+					connection = DriverManager.getConnection(sqlConnectionString);
+
+					String selectSql = "SELECT name FROM dbo.item where id = '"+id+"'";
+					statement = connection.createStatement();
+					resultSet = statement.executeQuery(selectSql);
+                  
+					
+					// Iterate through the result set and print the attributes.
+					while (resultSet.next()) {
+						System.out.println("ITEM NAME IS - "+resultSet.getString(1) + " ");
+						name = resultSet.getString(1);
+					}
+					
+					
+					
+					PreparedStatement insertStatement = connection
+				            .prepareStatement("INSERT INTO dbo.item(id, name) VALUES ('4','D');");
+
+				  //  insertStatement.setInt(1, 4);
+				    //insertStatement.setString(2, "D");
+				    
+				    
+				    insertStatement.executeUpdate();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+				finally {
+					// Close the connections after the data has been handled.
+					
+					if (resultSet != null) try { resultSet.close(); } catch(Exception e) {}
+					if (statement != null) try { statement.close(); } catch(Exception e) {}
+					if (connection != null) try { connection.close(); } catch(Exception e) {}
+				}
+		
+		return new ResponseEntity<>(name, HttpStatus.OK);
+	}
+	
+	//@CrossOrigin(origins = "https://frontendwebapphv.azurewebsites.net/")	
 	@PostMapping("/savefile")
 	   public String handleFileUpload(@RequestParam("file") MultipartFile file) {
 	      String message;
