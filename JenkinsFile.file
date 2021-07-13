@@ -43,6 +43,13 @@ pipeline {
                  }
              }
          }
+         stage('Run the application container'){
+             steps{
+             //   bat "docker container stop testcontainer"
+              //  bat "docker container rm testcontainer"
+                bat "docker run -p 8002:8002  -d --name testcontainer himanshiverma05/testjenkins:latest"
+             }
+         }
        // stage('Build') {
         //    steps {
                 // Get some code from a GitHub repository
