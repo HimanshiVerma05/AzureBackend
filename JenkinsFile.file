@@ -2,7 +2,7 @@ pipeline {
     agent any
 
      environment{
-         scannerHome = tool name:'sonar'
+         scannerHome = tool name:'SonarQubeScanner'
         registry = 'himanshiverma05/testjenkins'
 		username='himanshiverma05'
         credentials_id = 'dockercred'
@@ -21,10 +21,29 @@ pipeline {
                git credentialsId: 'github', url: 'https://github.com/HimanshiVerma05/AzureBackend.git'
              }
         }
+        stage('build && SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('Test_Sonar') {
+                   
+                   
+                        bat 'mvn clean install sonar:sonar -Dsonar.projectKey=sonar-himanshiverma -Dsonar.projectName=sonar-himanshiverma'
+                    
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
          stage('Docker Image') {
              steps{
                  echo "Docker Image step "
-                 bat "mvn clean install"
+                // bat "mvn clean install"
                  bat "docker build -t i_${username}_master --no-cache -f Dockerfile ."
              }
          }
