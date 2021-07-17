@@ -4,8 +4,9 @@ pipeline {
      environment{
          scannerHome = tool name:'SonarQubeScanner'
         registry = 'himanshiverma05/testjenkins'
-		username='himanshiverma05'
-        credentials_id = 'dockercred'
+		username='himanshiverma'
+        credentials_id = 'DockerHub'
+		git_url='https://github.com/HimanshiVerma05/AzureBackend.git'
     }
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
@@ -17,8 +18,8 @@ pipeline {
         stage('gitCheckout'){
              steps {
                 // Get some code from a GitHub repository
-               // git 'https://github.com/HimanshiVerma05/AzureBackend.git'
-               git credentialsId: 'github', url: 'https://github.com/HimanshiVerma05/AzureBackend.git'
+               
+               git credentialsId: 'github', url: ${git_url}
              }
         }
         stage('build && SonarQube analysis') {
@@ -33,7 +34,7 @@ pipeline {
         }
         stage("Quality Gate") {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+               timeout(time: 1, unit: 'HOURS'){
                     // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
                     // true = set pipeline to UNSTABLE, false = don't
                     waitForQualityGate abortPipeline: true
@@ -54,7 +55,7 @@ pipeline {
                  bat "docker tag i_${username}_master ${registry}:latest"
                  
                
-                 withDockerRegistry([credentialsId:'dockercred' , url:""]){
+                 withDockerRegistry([credentialsId:${credentials_id} , url:""]){
                  
                  
                  bat "docker push ${registry}:${BUILD_NUMBER}"
@@ -64,15 +65,14 @@ pipeline {
          }
          stage('Run the application container'){
              steps{
-             //   bat "docker container stop testcontainer"
-              //  bat "docker container rm testcontainer"
-                bat "docker run -p 8002:8002  -d --name testcontainer himanshiverma05/testjenkins:latest"
+             //   bat "docker container stop c_${username}_master"
+              //  bat "docker container rm c_${username}_master"
+                bat "docker run -p 7100:8080  -d --name c_${username}_master ${registry}:latest"
              }
          }
        // stage('Build') {
         //    steps {
-                // Get some code from a GitHub repository
-               // git 'https://github.com/HimanshiVerma05/AzureBackend.git'
+                
               // git credentialsId: 'github', url: 'https://github.com/HimanshiVerma05/AzureBackend.git'
 
                 // Run Maven on a Unix agent.

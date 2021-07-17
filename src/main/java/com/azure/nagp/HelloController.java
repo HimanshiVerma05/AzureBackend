@@ -36,11 +36,18 @@ public class HelloController {
 
 	public static final String SQL_CONNECTIONSTRING = "jdbc:sqlserver://sqlserverhv.database.windows.net:1433;database=sqldbhv;user=NagpHimanshi@sqlserverhv;password=Nagp@Himanshi;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;";
 
+	
 	@RequestMapping("/")
 	public String index() {
 		return "Greetings from Spring Boot!";
 	}
 
+	@GetMapping("/getName")
+	public ResponseEntity<String> getName() {
+		
+		String name = null;
+		return null;
+	}
 	// @CrossOrigin(origins = "https://frontendwebapphv.azurewebsites.net/")
 	@GetMapping("/getItem/{id}")
 	public ResponseEntity<String> getItemFromId(@PathVariable(value = "id") String id) {
