@@ -17,6 +17,11 @@ import com.azure.storage.blob.*;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 public class HelloController {
 
+	private static final Logger logger = LoggerFactory.getLogger(HelloController.class);
+	
 	List<String> files = new ArrayList<>();
 
 	// Define the connection-string with your values
@@ -36,6 +43,8 @@ public class HelloController {
 
 	public static final String SQL_CONNECTIONSTRING = "jdbc:sqlserver://sqlserverhv.database.windows.net:1433;database=sqldbhv;user=NagpHimanshi@sqlserverhv;password=Nagp@Himanshi;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;";
 
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping("/")
 	public String index() {
@@ -45,8 +54,10 @@ public class HelloController {
 	@GetMapping("/getName")
 	public ResponseEntity<String> getName() {
 		
-		String name = null;
-		return null;
+		
+		String name=userService.getName();
+		
+		return new ResponseEntity<>(name, HttpStatus.OK);
 	}
 	// @CrossOrigin(origins = "https://frontendwebapphv.azurewebsites.net/")
 	@GetMapping("/getItem/{id}")
@@ -54,12 +65,7 @@ public class HelloController {
 		String name = null;
 		
 
-		try {
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		} catch (ClassNotFoundException e1) {
-
-			e1.printStackTrace();
-		}
+	
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet resultSet = null;
@@ -91,25 +97,25 @@ public class HelloController {
 				try {
 					resultSet.close();
 				} catch (Exception e) {
-					System.out.println("Exception in closing resultset");
+					logger.error("Exception in closing resultset");
 				}
 			if (statement != null)
 				try {
 					statement.close();
 				} catch (Exception e) {
-					System.out.println("Exception in closing statement");
+					logger.error("Exception in closing statement");
 				}
 			if (connection != null)
 				try {
 					connection.close();
 				} catch (Exception e) {
-					System.out.println("Exception in closing connection");
+					logger.error("Exception in closing connection");
 				}
 			if (insertStatement != null)
 				try {
 					insertStatement.close();
 				} catch (Exception e) {
-					System.out.println("Exception in closing insert");
+					logger.error("Exception in closing insert");
 				}
 		}
 
@@ -129,7 +135,7 @@ public class HelloController {
 
 		// List the blob(s) in the container.
 		for (BlobItem blobItem : containerClient.listBlobs()) {
-			System.out.println("blob item is  --- " + blobItem.getName());
+			logger.info("blob item is {}",blobItem.getName());
 		}
 
 		BlockBlobClient blockBlobClient = containerClient.getBlobClient("myblockblob").getBlockBlobClient();
