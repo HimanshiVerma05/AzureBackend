@@ -5,8 +5,7 @@ pipeline {
          scannerHome = tool name:'SonarQubeScanner'
         registry = 'himanshiverma05/testjenkins'
 		username='himanshiverma'
-        credentials_id = 'DockerHub'
-		git_url='https://github.com/HimanshiVerma05/AzureBackend.git'
+		
     }
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
@@ -19,7 +18,7 @@ pipeline {
              steps {
                 // Get some code from a GitHub repository
                
-               git credentialsId: 'github', url: ${git_url}
+               git credentialsId: 'github', url:'https://github.com/HimanshiVerma05/AzureBackend.git'
              }
         }
         stage('build && SonarQube analysis') {
@@ -55,7 +54,7 @@ pipeline {
                  bat "docker tag i_${username}_master ${registry}:latest"
                  
                
-                 withDockerRegistry([credentialsId:${credentials_id} , url:""]){
+                 withDockerRegistry([credentialsId:'DockerHub' , url:""]){
                  
                  
                  bat "docker push ${registry}:${BUILD_NUMBER}"
