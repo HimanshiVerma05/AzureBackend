@@ -88,14 +88,14 @@ triggers {
              steps{
                  
                  bat "docker tag i-${username}-master ${registry}:${BUILD_NUMBER}"
-                 bat "docker tag i-${username}-master ${registry}:latest"
+                // bat "docker tag i-${username}-master ${registry}:latest"
                  
                
                  withDockerRegistry([credentialsId:'DockerHub' , url:""]){
                  
                  
                  bat "docker push ${registry}:${BUILD_NUMBER}"
-                 bat "docker push ${registry}:latest"
+                // bat "docker push ${registry}:latest"
                  }
              }
          }
@@ -113,7 +113,7 @@ triggers {
                     }finally{
 					
                         //start a new container
-                        bat "docker run --name c-${username}-master -d -p 7100:7100 ${registry}:latest"
+                        bat "docker run --name c-${username}-master -d -p 7100:7100 ${registry}:${BUILD_NUMBER}"
                     }
 			 
 			 }
