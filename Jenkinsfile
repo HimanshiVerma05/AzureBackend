@@ -113,7 +113,7 @@ triggers {
                     }finally{
 					
                         //start a new container
-                        bat "docker run --name c-${username}-master -d -p 7100:8080 ${registry}:latest"
+                        bat "docker run --name c-${username}-master -d -p 7100:7100 ${registry}:latest"
                     }
 			 
 			 }
