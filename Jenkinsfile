@@ -102,7 +102,7 @@ triggers {
          stage('Run the application container'){
              steps{
 			 
-			 
+			  script{
 			  try{
                         
                         bat "docker stop c-${username}-master"
@@ -116,9 +116,9 @@ triggers {
                         bat "docker run --name c-${username}-master -d -p 7100:8080 ${registry}:latest"
                     }
 			 
-			 
+			 }
             
-                bat "docker run -p 7100:8080  -d --name c-${username}-master ${registry}:latest"
+                
              }
          }
 
