@@ -3,7 +3,7 @@ pipeline {
 
      environment{
          scannerHome = tool name:'SonarQubeScanner'
-        registry = 'himanshiverma05/testjenkins'
+        registry = 'himanshiverma05/i-himanshiverma-master'
 		username='himanshiverma'
 		
     }
@@ -81,21 +81,23 @@ triggers {
              steps{
                  echo "Docker Image step "
                
-                 bat "docker build -t i-${username}-master --no-cache -f Dockerfile ."
+                 bat "docker build -t i-${username}-master:${BUILD_NUMBER} --no-cache -f Dockerfile ."
+				 
+				 
              }
          }
          stage('Move Docker Image to docker Hub') {
              steps{
                  
-                 bat "docker tag i-${username}-master ${registry}:${BUILD_NUMBER}"
-                // bat "docker tag i-${username}-master ${registry}:latest"
+                 bat "docker tag i-${username}-master:${BUILD_NUMBER} ${registry}:${BUILD_NUMBER}"
+               
                  
                
                  withDockerRegistry([credentialsId:'DockerHub' , url:""]){
                  
                  
                  bat "docker push ${registry}:${BUILD_NUMBER}"
-                // bat "docker push ${registry}:latest"
+                
                  }
              }
          }
